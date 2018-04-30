@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+</head>
+
+<body>
+    <h1>D3 and S.V.G</h1>
+    <div id="svg-goes-here"></div>
+    <script>
+        let data = [50,40,30,20,10,20,30,40,50];
+        let colors=["red","green","blue","orange","purple","red","green","blue","orange","purple"]
+        let w = 1000;
+        let h = 200;
+
+        let mysvg = d3.select("#svg-goes-here")
+            .append("svg")
+            .attr("width" , w)
+            .attr("height", h);
+            
+            mysvg.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("fill",function(d,i){
+                return colors[i];
+            })
+            .attr("cx", function(d,i){
+                return 50 + (i * 100);
+            })
+            .attr("cy", h/2)
+            .attr("r", function(d){
+                return d;
+            })
+            
+           
+    </script>
+</body>
+
+</html>

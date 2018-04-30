@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+</head>
+
+<body>
+    <h1>D3 and S.V.G</h1>
+    <div id="svg-goes-here"></div>
+    <script>
+        let h = 500;
+        let w = 500;
+        let barPadding = 1;
+
+        let dataSet = [
+            380, 120, 400, 260, 90, 310, 140, 126, 265, 319,
+            421, 76, 120, 42, 370, 230, 400, 100, 90, 621
+        ];
+        
+        let scale = d3.scale.linear()
+        .domain([0,Math.max.apply(null, dataSet)])
+        .range([0,500])
+        
+        let colWidth=  w / dataSet.length;
+        let barWidth= colWidth - barPadding;
+
+        let mySvg = d3.select("#svg-goes-here")
+            .append("svg")
+            .attr("height", h)
+            .attr("width", w);
+
+        mySvg.selectAll("rect")
+            .data(dataSet)
+            .enter()
+            .append("rect")
+            .attr("x", function(d, i) {
+                return i * (w / dataSet.length);
+            })
+            .attr("y", function(d) {
+                return h - scale(d);
+            })
+            .attr("height", function(d) {
+                return scale(d);
+            })
+            .attr("width",  barWidth);
+            
+            mySvg.selectAll("text")
+            .data(dataSet)
+            .enter()
+            .append("text")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "11px")
+            .attr("text-anchor","middle")
+            .attr("fill","white")
+            .text(function(d){
+                return d;
+            })
+            
+            .attr("x",function(d,i){
+                return i * colWidth + barWidth / 2;
+            })
+            .attr("y", function(d){
+                return h - scale(d)+ 14;
+            })
+            
+    </script>
+</body>
+
+</html>
