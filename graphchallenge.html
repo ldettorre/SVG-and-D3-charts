@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.js"></script>
+    <style>
+        /*svg {*/
+
+        /*    padding-left: 4px;*/
+
+        /*}*/
+    </style>
+
+
+
+</head>
+
+<body>
+
+    <div id="rankchart"></div>
+    <div id="barChart"></div>
+    <div id="servicechart"></div>
+    <script>
+        queue()
+            .defer(d3.csv, "salaries.csv")
+            .await(makeCharts);
+
+
+        function makeCharts(error, transactionsData) {
+            let ndx = crossfilter(transactionsData);
+
+
+
+            let rankDim = ndx.dimension(dc.pluck("rank"));
+            let totalPeople = rankDim.group()
+
+
+            dc.pieChart("#rankchart")
+                .height(300)
+                .radius(100)
+                .dimension(rankDim)
+                .group(totalPeople)
+
+
+
+            let serviceDim = ndx.dimension(dc.pluck("service"));
+            let totPeople = serviceDim.group()
+
+
+            dc.pieChart("#servicechart")
+                .height(300)
+                .radius(200)
+                .dimension(serviceDim)
+                .group(totPeople)
+
+
+
+
+            let sexDim = ndx.dimension(dc.pluck("sex"));
+            let totalPeoples = sexDim.group()
+            let barChart = dc.barChart("#barChart")
+
+
+            barChart
+                .height(200)
+                .width(300)
+                .dimension(sexDim)
+                .group(totalPeoples)
+                .x(d3.scale.ordinal())
+                .xUnits(dc.units.ordinal)
+                .xAxisLabel("Amount of Female/Male")
+
+            dc.renderAll();
+        }
+    </script>
+</body>
+
+</html>
