@@ -11,13 +11,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.js"></script>
+    <style>
+        svg  {
+            padding-left:4px;
+            
+        }
+    </style>
 </head>
 
 <body>
     <div id="spend-chart"></div>
     <div id="storeChart"></div>
-    <div id="stateChart"></div>
-
+    <div id="statechart"></div>
+    <div id="line-chart"></div>
     <script>
         queue()
             .defer(d3.json, "data/transactions.json")
@@ -25,11 +31,62 @@
 
 
         function makeCharts(error, transactionsData) {
+            let ndx = crossfilter(transactionsData);
+            
+            let parseDate = d3.time.format("%d/%m/%Y").parse;
+            
+            
+            
+            
+            transactionsData.forEach(function(d){
+                d.date = parseDate(d.date);
+            })
+            
+            let dateDim =ndx.dimension(dc.pluck("date"));
+            let totalSpendByDate =dateDim.group().reduceSum(dc.pluck("spend"));
+            
+            let minDate= dateDim.bottom(1)[0].date;
+            let maxDate= dateDim.top(1)[0].date;
+            
+            let lineSpend = dc.lineChart("#line-chart");
+            lineSpend
+            .width(1000)
+            .height(300)
+            .dimension(dateDim)
+            .group(totalSpendByDate)
+            .x(d3.time.scale().domain([minDate,maxDate]))
+            .xAxisLabel("Month")
+            
 
-           
+
+
+
+
+
+
+
+
+
+
+           let stateDim= ndx.dimension(dc.pluck("state"));
+        //   let statepDim=ndx.dimension(function(d){
+        //       return d.state;
+        //   })
+           let totalSpendByState = stateDim.group().reduceSum(dc.pluck("spend"));
+            
+            dc.pieChart("#statechart")
+            .height(300)
+            .radius(100)
+            .dimension(stateDim)
+            .group(totalSpendByState)
+            
+            
+            
+            
+            
             
             // ndx is just a variable name /convention
-            let ndx = crossfilter(transactionsData);
+            // let ndx = crossfilter(transactionsData);
 
             // this returns just the name, basically sorting out data based on name.
             let nameDim = ndx.dimension(dc.pluck('name'));
@@ -69,19 +126,19 @@
                 .yAxis().ticks(4);
 
 
-            let stateDim = ndx.dimension(dc.pluck('state'));
-            let totalSpendByState = stateDim.group().reduceSum(dc.pluck('spend'));
-            let stateChart = dc.barChart("#stateChart");
+            // let stateDim = ndx.dimension(dc.pluck('state'));
+            // let totalSpendByState = stateDim.group().reduceSum(dc.pluck('spend'));
+            // let stateChart = dc.barChart("#stateChart");
 
-            stateChart
-                .width(300)
-                .height(150)
-                .dimension(stateDim)
-                .group(totalSpendByState)
-                .x(d3.scale.ordinal())
-                .xUnits(dc.units.ordinal)
-                .xAxisLabel("Spend By State")
-                .yAxis().ticks(4);
+            // stateChart
+            //     .width(300)
+            //     .height(150)
+            //     .dimension(stateDim)
+            //     .group(totalSpendByState)
+            //     .x(d3.scale.ordinal())
+            //     .xUnits(dc.units.ordinal)
+            //     .xAxisLabel("Spend By State")
+            //     .yAxis().ticks(4);
 
             dc.renderAll();
 
